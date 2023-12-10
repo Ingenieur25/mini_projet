@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mysql-container:
+    image: localhost:5000/mysql:latest  # Utilisation de l'image MySQL depuis le registre privé
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    networks:
+      - appnetwork
+    volumes:
+      - mysqlvol:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: backenddb
+
+  backend:
+    image: localhost:5000/backend:1.0.2  # Utilisation de l'image backend depuis le registre privé
+    container_name: backend
+    ports:
+      - "8080:8080"
+    networks:
+      - appnetwork
+    depends_on:
+      - mysql-container
+
+  frontend:
+    image: localhost:5000/frontend:1.0.2  # Utilisation de l'image frontend depuis le registre privé
+    container_name: frontend
+    ports:
+      - "8081:80"
+    networks:
+      - appnetwork
+    depends_on:
+      - backend
+
+volumes:
+  mysqlvol:
+    driver: local
+
+networks:
+  appnetwork:
+    driver: bridge
